@@ -1,0 +1,56 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h1><strong>Trending Products</strong></h1>
+    </div>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <!-- Product Image -->
+                <img
+                    src="{{ product.imageURL }}"
+                    class="card-img-top"
+                    alt="{{ product.name }}"
+                    style="height: 200px; object-fit: contain; padding: 10px;"
+                />
+
+                <!-- Product Details -->
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-truncate" title="{{ product.name }}">
+                        <strong>{{ product.name }}</strong>
+                    </h5>
+                    <p class="card-text text-success mb-2">&#8377;{{ product.price }}</p>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-auto">
+                        <button
+                            data-product="{{ product.id }}"
+                            data-action="add"
+                            class="btn btn-primary btn-sm w-100 mb-2 update-cart"
+                        >
+                            Add to Cart
+                        </button>
+                        <a
+                            href="{% url 'product_detail' product.id %}"
+                            class="btn btn-outline-success btn-sm w-100 mb-2"
+                        >
+                            View Details
+                        </a>
+                        <a
+                            href="{% url 'add_to_wishlist' product.id %}"
+                            class="btn btn-outline-warning btn-sm w-100"
+                        >
+                            Add to Wishlist
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
+

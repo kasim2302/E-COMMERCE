@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+	<title>Ecom</title>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+
+	<script type="text/javascript">
+		var user = '{{request.user}}'
+
+		function getToken(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+		var csrftoken = getToken('csrftoken')
+
+		function getCookie(name) {
+		    // Split cookie string and get all individual name=value pairs in an array
+		    var cookieArr = document.cookie.split(";");
+
+		    // Loop through the array elements
+		    for(var i = 0; i < cookieArr.length; i++) {
+		        var cookiePair = cookieArr[i].split("=");
+
+		        /* Removing whitespace at the beginning of the cookie name
+		        and compare it with the given string */
+		        if(name == cookiePair[0].trim()) {
+		            // Decode the cookie value and return
+		            return decodeURIComponent(cookiePair[1]);
+		        }
+		    }
+
+		    // Return null if not found
+		    return null;
+		}
+		var cart = JSON.parse(getCookie('cart'))
+
+		if (cart == undefined){
+			cart = {}
+			console.log('Cart Created!', cart)
+			document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
+		}
+		console.log('Cart:', cart)
+	
+	</script>
+
+</head>
+<body>
+
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+		<div class="container-fluid">
+			<!-- Brand Logo -->
+			<a class="navbar-brand fw-bold" href="{% url 'store' %}">
+				MehaCart
+			</a>
+	
+			<!-- Toggler Button for Mobile -->
+			<button
+				class="navbar-toggler"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#navbarContent"
+				aria-controls="navbarContent"
+				aria-expanded="false"
+				aria-label="Toggle navigation"
+			>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+	
+			<!-- Navbar Content -->
+			<div class="collapse navbar-collapse" id="navbarContent">
+				<!-- Search Bar (Centered) -->
+				<div class="container-fluid" style="align-items: center;">
+				<form 
+                  action="{% url 'search_products' %}" 
+                  method="get" 
+                  class="d-flex mx-auto justify-content-center align-items-center"
+                  style="width: 50%;"
+                >
+                <input 
+                      type="text" 
+                      name="q" 
+                      placeholder="Search for products, brands, and more" 
+                      class="form-control search-bar me-2" 
+                      required
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+              
+					
+					
+				</div>
+	
+				<!-- Right-Aligned Links -->
+				<div class="d-flex align-items-center">
+					<!-- User Authentication Links -->
+					{% if user.is_authenticated %}
+						<span class="text-white me-3">
+							Welcome, <strong>{{ user.username }}</strong>
+						</span>
+						<a
+							class="btn btn-outline-danger btn-sm me-2"
+							href="{% url 'logout' %}"
+							style="width: 100px;"
+						>
+							Logout
+						</a>
+					{% else %}
+						<a
+							class="btn btn-outline-primary btn-sm me-2"
+							href="{% url 'login' %}"
+							style="width: 100px;"
+						>
+							Login
+						</a>
+						<a
+							class="btn btn-primary btn-sm me-2"
+							href="{% url 'signup' %}"
+							style="width: 100px;"
+						>
+							Sign Up
+						</a>
+					{% endif %}
+	
+					<!-- Wishlist -->
+					<div class="position-relative me-2">
+						<a href="{% url 'wishlist' %}" class="btn btn-outline-warning btn-sm" style="width: 100px;">
+							<i class="bi bi-heart"></i>
+							Wishlist
+							<span
+								id="wishlist-count"
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+							>
+								{{ wishlistItems|default:"0" }}
+							</span>
+						</a>
+					</div>
+	
+					<!-- Cart -->
+					<div class="position-relative">
+						<a href="{% url 'cart' %}">
+							<img
+								id="cart-icon"
+								src="{% static 'images/cart.png' %}"
+								alt="Cart"
+								style="width: 30px;"
+							/>
+							<span
+								id="cart-total"
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+							>
+								{{ cartItems }}
+							</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</nav>
+	
+	
+	
+
+     <div class="container">
+            <br>
+            {% block content %}
+		
+
+
+            {% endblock content %}
+         </div>
+          <br>
+		  <br><br><br>
+
+		  
+		 <footer class="bg-dark text-white py-4">
+			<div class="container">
+				<div class="row">
+					<!-- About Us -->
+					<div class="col-lg-4 col-md-6 mb-4">
+						<h5>About MehaCart</h5>
+						<p>
+							MehaCart is your one-stop solution for all your shopping needs. We provide a wide range of products with the best deals, ensuring a great shopping experience.
+						</p>
+					</div>
+		
+					<!-- Quick Links -->
+					<div class="col-lg-4 col-md-6 mb-4">
+						<h5>Quick Links</h5>
+						<ul class="list-unstyled">
+							<li><a href="{% url 'store' %}" class="text-white text-decoration-none">Home</a></li>
+							<li><a href="#" class="text-white text-decoration-none">About Us</a></li>
+							<li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+							<li><a href="#" class="text-white text-decoration-none">Contact Us</a></li>
+						</ul>
+					</div>
+		
+					<!-- Contact Us -->
+					<div class="col-lg-4 col-md-6 mb-4">
+						<h5>Contact Us</h5>
+						<ul class="list-unstyled">
+							<li><i class="bi bi-envelope"></i> support@mehacart.com</li>
+							<li><i class="bi bi-telephone"></i> +1-800-123-4567</li>
+							<li><i class="bi bi-geo-alt"></i> 123 Shopping Lane, City, Country</li>
+						</ul>
+						<!-- Social Media Links -->
+						<div class="mt-3">
+							<a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
+							<a href="#" class="text-white me-2"><i class="bi bi-twitter"></i></a>
+							<a href="#" class="text-white me-2"><i class="bi bi-instagram"></i></a>
+							<a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+						</div>
+					</div>
+				</div>
+				<hr class="border-light">
+				<div class="text-center">
+					<p class="mb-0">&copy; 2024 MehaCart. All rights reserved.</p>
+				</div>
+			</div>
+		</footer>
+		
+
+
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
+</body>
+</html>
